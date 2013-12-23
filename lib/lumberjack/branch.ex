@@ -7,8 +7,11 @@ defmodule Lumberjack.Branch do
   end
 
   def init(branch_name) do
-    IO.puts branch_name
-    {:ok, {branch_name, []}}
+    {:ok, {String.from_char_list!(branch_name), []}}
+  end
+
+  def handle_call(:commits, _from, {branch_name, commits}) do
+    {:reply, commits, {branch_name, commits}}
   end
 
   def handle_call(request, from, config) do
@@ -16,10 +19,26 @@ defmodule Lumberjack.Branch do
   end
 
   def handle_cast({:push_commit, commit}, {branch_name, commits}) do
-    {:noreply, {branch_name, [commit | commits]}}
+    updated_commits = add_commit(commit, commits, branch_name)
+    {:noreply, {branch_name, updated_commits}}
   end
 
   def handle_cast(request, config) do
     super(request, config)
+  end
+
+  defp add_commit(commit, commits, branch_name) do
+    if commit_on_branch?(commit, branch_name) do
+      [commit | commits]
+    else
+      commits
+    end
+  end
+
+  defp commit_on_branch?(commit, branch_name) do
+    branches = System.cmd("git branch --contains #{commit}")
+    IO.inspect branches
+    IO.inspect branch_name
+    String.contains? branches, branch_name
   end
 end
