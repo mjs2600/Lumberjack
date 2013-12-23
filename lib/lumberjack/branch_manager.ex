@@ -16,14 +16,20 @@ defmodule Lumberjack.BranchManager do
 
   def seed_commits(branches) do
     Lumberjack.Commit.all
-    |> Enum.map fn(commit) -> 
-                    Enum.map branches,
-                         fn(branch) ->
-                             :gen_server.cast branch,
-                                         {:push_commit, commit}
-                         end
-                end
+    |> add_commits_to_branches(branches)
     {:noreply, branches}
+  end
+
+  defp add_commits_to_branches(commits, branches) do
+    Enum.map commits, &add_commit_to_branches(&1, branches)
+  end
+
+  defp add_commit_to_branches(commit, branches) do
+    Enum.map branches, &add_commit_to_branch(commit, &1)
+  end
+
+  defp add_commit_to_branch(commit, branch) do
+    :gen_server.cast branch, {:push_commit, commit}
   end
 
   defp branch_names do
