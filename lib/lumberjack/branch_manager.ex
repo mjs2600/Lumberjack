@@ -8,10 +8,15 @@ defmodule Lumberjack.BranchManager do
 
   def init(_args) do
     branches = branch_names
-    |> Enum.map fn(branch) -> Lumberjack.Branch.start_link(branch) end
+    |> Enum.map &create_branch(&1)
     IO.puts "BranchManager started"
     seed_commits(branches)
     {:ok, branches}
+  end
+
+  defp create_branch(branch_name) do
+    {:ok, branch} = Lumberjack.Branch.start_link(branch_name)
+    branch
   end
 
   def seed_commits(branches) do
