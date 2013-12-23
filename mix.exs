@@ -5,6 +5,7 @@ defmodule Lumberjack.Mixfile do
     [ app: :lumberjack,
       version: "0.0.2",
       elixir: "~> 0.12.1-dev",
+      escript_main_module: Lumberjack,
       deps: deps ]
   end
 
