@@ -11,6 +11,8 @@ defmodule Lumberjack.BranchManager do
     |> Enum.map &create_branch(&1)
     IO.puts "BranchManager started"
     seed_commits(branches)
+    commits = Enum.map branches, &:gen_server.call(&1, :commits)
+    IO.inspect commits
     {:ok, branches}
   end
 
